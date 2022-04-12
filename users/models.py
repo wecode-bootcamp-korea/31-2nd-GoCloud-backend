@@ -7,7 +7,6 @@ class User(TimeStamp):
     email         = models.CharField(max_length=50, unique=True)
     kakao_id      = models.IntegerField()
     date_of_birth = models.DateField()
-    phone_number  = models.CharField(max_length=30)
 
     class Meta: 
         db_table = 'users'
@@ -29,6 +28,15 @@ class WishList(TimeStamp):
 class Booking(TimeStamp): 
     user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booking')
     space_size = models.ForeignKey('spaces.Space', on_delete=models.CASCADE, related_name='booking')
+    start_time = models.DateTimeField() 
+    finish_time  = models.DateTimeField()
 
     class Meta: 
         db_table = 'booking'
+
+class Status(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='status')
+    status  = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = 'status'

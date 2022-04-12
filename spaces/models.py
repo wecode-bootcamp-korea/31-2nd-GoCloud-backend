@@ -9,12 +9,12 @@ class Category(models.Model):
         db_table = 'categories'
 
 class Space(TimeStamp): 
-    host     = models.ForeignKey('users.Host', on_delete=models.CASCADE, related_name='spaces')
-    title    = models.CharField(max_length=100)
-    detail   = models.TextField()
-    capacity = models.IntegerField()
-    address  = models.CharField(max_length=100)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='spaces')
+    host         = models.ForeignKey('users.Host', on_delete=models.CASCADE, related_name='spaces')
+    title        = models.CharField(max_length=100)
+    detail       = models.TextField()
+    max_capacity = models.IntegerField()
+    address      = models.CharField(max_length=100)
+    category     = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='spaces')
 
     class Meta: 
         db_table = 'spaces'
