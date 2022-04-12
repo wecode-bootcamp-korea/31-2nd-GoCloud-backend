@@ -6,7 +6,6 @@ class User(TimeStamp):
     nickname      = models.CharField(max_length=45)
     email         = models.CharField(max_length=50, unique=True)
     kakao_id      = models.IntegerField()
-    date_of_birth = models.DateField()
 
     class Meta: 
         db_table = 'users'
