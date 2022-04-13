@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from my_settings import ALGORITHM, DATABASES, SECRET_KEY
+from my_settings import ALGORITHM, DATABASES, SECRET_KEY, APP_KEY
 
 import pymysql
 
