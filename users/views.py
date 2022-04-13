@@ -1,10 +1,11 @@
-import jwt, datetime, requests
+import jwt, datetime, requests, json
 
 from django.views import View
-from django.http import JsonResponse
-from django.conf import settings
+from django.http  import JsonResponse, HttpResponse
+from django.conf  import settings
 
-from users.models  import User
+from users.models         import User, Host
+from utilities.decorators import login_decorator
 
 class KaKaoSigninView(View):
     def get(self, request):
@@ -54,3 +55,18 @@ class KaKaoSigninView(View):
 
     def request_user_info(self, access_token):
         return requests.get('https://kapi.kakao.com/v2/user/me', headers={"Authorization" : f'Bearer {access_token}'}).json()
+    
+class HostConvertView(View):
+    @login_decorator
+    def post(self, request):
+        data = json.loads(request.body)
+        user = request.user
+
+        if Host.objects.filter(user=user).exsits():
+            return JsonResponse({'message': 'ALREADY_EXISTS'})
+
+        Host.objects.create(
+            user = user,
+            phone_number = data['phone_number']
+        )
+        return HttpResponse(status = 201)

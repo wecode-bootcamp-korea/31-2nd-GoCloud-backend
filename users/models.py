@@ -11,11 +11,11 @@ class User(TimeStamp):
         db_table = 'users'
 
 class Host(TimeStamp): 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosts')
+    user         = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosts')
+    phone_number = models.CharField(max_length=45)
 
     class Meta: 
         db_table = 'hosts'
-
 
 class WishList(TimeStamp): 
     user  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlists')
