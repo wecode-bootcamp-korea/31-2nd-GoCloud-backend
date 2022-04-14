@@ -1,10 +1,12 @@
 import jwt, datetime, requests, json
 
+from django.shortcuts import redirect
 from django.views import View
 from django.http  import JsonResponse, HttpResponse
 from django.conf  import settings
 
-from users.models         import User, Host
+from users.models         import User, Host, WishList
+from spaces.models        import *
 from utilities.decorators import check_token
 
 class KakaoAPI:
@@ -74,3 +76,42 @@ class HostConvertView(View):
             phone_number = data['phone_number']
         )
         return HttpResponse(status = 201)
+
+class WishListView(View):
+    @check_token
+    def get(self, request):
+        wishlist = WishList.objects.filter(user = request.user)
+
+        wishlist =  [{
+            'id' : wish_space.id,
+            'space' : {
+                'id'          : wish_space.space.id,
+                'title'       : wish_space.space.title,
+                'sub_title'   : wish_space.space.sub_title,
+                'room_name'   : wish_space.space.room_name,
+                'detail'      : wish_space.space.detail,
+                'max_capacity': wish_space.space.max_capacity,
+                'address'     : wish_space.space.address,
+                'price'       : wish_space.space.price,
+                'category'    : wish_space.space.category.id,
+            }
+        } for wish_space in wishlist]
+
+        return JsonResponse({'wish_list' : wishlist}, status=200)
+        
+class PostWishView(View):
+    @check_token
+    def post(self, request, space_id):
+        try:
+            space      = Space.objects.get(id = space_id)
+            wish_space = WishList.objects.filter(user = request.user, space = space)
+
+            if not wish_space.exists():
+                WishList.objects.create(user = request.user, space = space)
+                return HttpResponse(status = 201)
+            
+            wish_space.delete()
+            return HttpResponse(status = 204)
+
+        except KeyError:
+            return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)

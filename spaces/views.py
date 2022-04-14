@@ -1,10 +1,12 @@
 from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Count
+from django.conf      import settings
 
-from storage              import FileUploader, s3_client
+from spaces.models        import Space
+from utilities.storages   import s3_client, FileUploader
+from .models              import *
 from utilities.decorators import check_token
-from spaces.models        import Review, Space
 
 class SpaceListView(View):
     def get(self, request):
@@ -12,8 +14,7 @@ class SpaceListView(View):
         limit  = int(request.GET.get('limit', 20))
         order  = request.GET.get('order', None)
         filter_dictionary = request.GET.items()
-        
-        
+
         FILTER_SET = {
             "capacity": "max_capacity__exact",
             "date"    : "booking__start_time__date",
@@ -56,7 +57,7 @@ class ReviewView(View):
         if file == None:
             return JsonResponse({'mesasage':'FILE_UPLOAD_ERROR'}, status=400)
 
-        image_file = FileUploader(s3_client, 'hyunyoung').upload(file, 'gocloud/')
+        image_file = FileUploader(s3_client, settings.BUCKET_NAME).upload(file, 'gocloud/')
 
         Review.objects.create(
             user_id   = request.user,

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from spaces.views import SpaceListView, ReviewView
+from spaces.views import SpaceListView, ReviewView, SpaceRegisterView
 
 urlpatterns = [
     path('', SpaceListView.as_view()),

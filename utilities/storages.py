@@ -24,9 +24,7 @@ class FileUploader:
                 'ContentType':file.content_type
             }
         )
-        return f'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/{file_id}'
+        return f'https://{self.bucket_name}.s3.ap-northeast-2.amazonaws.com/{folder}{file_id}'
     
     def delete(self, file_name, bucket_name):
         self.s3.delete_object(Bucket=bucket_name, Key=file_name)
-
-
