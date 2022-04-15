@@ -18,7 +18,7 @@ class KakaoAPI:
         token  = requests.post(kakao_token_api, data=data, timeout=2)
         return token.json()['access_token']
 
-    def request_user_info(access_token):
+    def request_user_info(self, access_token):
         return requests.get('https://kapi.kakao.com/v2/user/me', headers={"Authorization" : f'Bearer {access_token}'}).json()
 
 class KakaoSigninView(View):
