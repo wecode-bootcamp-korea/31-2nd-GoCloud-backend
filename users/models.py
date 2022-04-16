@@ -25,10 +25,10 @@ class WishList(TimeStamp):
         db_table = 'wishlists'
 
 class Booking(TimeStamp): 
-    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booking')
-    space_size = models.ForeignKey('spaces.Space', on_delete=models.CASCADE, related_name='booking')
-    start_time = models.DateTimeField() 
-    finish_time  = models.DateTimeField()
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booking')
+    space       = models.ForeignKey('spaces.Space', on_delete=models.CASCADE, related_name='booking')
+    start_time  = models.DateTimeField()
+    finish_time = models.DateTimeField()
 
     class Meta: 
         db_table = 'booking'
