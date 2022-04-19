@@ -11,7 +11,7 @@ class SpaceListView(View):
         order  = request.GET.get('order', None)
         filter_dictionary = request.GET.items()
         
-
+        
         FILTER_SET = {
             "capacity": "max_capacity__exact",
             "date"    : "booking__start_time__date",
