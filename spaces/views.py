@@ -79,4 +79,22 @@ class ReviewView(View):
                 'price':float(review.space.price)}
         } for review in reviews]
 
+class SpaceDetailView(View):
+    def get(self, request, space_id):
+        try:
+            space = Space.objects.select_related('category').get(id=space_id)
+
+            result = {
+                'id'          : space.id,
+                'title'       : space.title,
+                'sub_title'   : space.sub_title,
+                'room_name'   : space.room_name,
+                'detail'      : space.detail,
+                'max_capacity': space.max_capacity,
+                'address'     : space.address,
+                'price'       : space.price,
+                'category'    : space.category.title
+            }
+        except Space.DoesNotExist:
+            return JsonResponse({'message':'DOES_NOT_EXIST'}, status=400)
         return JsonResponse({'result':result}, status=200)
