@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from my_settings import ALGORITHM, DATABASES, SECRET_KEY, APP_KEY
+from my_settings import ALGORITHM, DATABASES, SECRET_KEY, APP_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
-import pymysql
+import pymysql, os
 
 pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -160,3 +160,32 @@ LOGGING = {
         },
     },
 }
+AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID 
+AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
+
+AWS_REGION = 'ap-northeast-2'
+
+AWS_STORAGE_BUCKET_NAME = 'hyunyoung'
+
+AWS_S3_CUSTOM_DOMAIN = '%s' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_SECURE_URLS = False
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+
+AWS_DEFAULT_ACL = 'public-read'
+
+AWS_LOCATION = 'static'
+
+STATIC_URL = 'http://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
