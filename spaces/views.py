@@ -1,8 +1,10 @@
-from django.http      import JsonResponse
 from django.views     import View
+from django.http      import JsonResponse
 from django.db.models import Count
 
-from spaces.models import Space
+from storage              import FileUploader, s3_client
+from utilities.decorators import check_token
+from spaces.models        import Review, Space
 
 class SpaceListView(View):
     def get(self, request):
@@ -44,3 +46,37 @@ class SpaceListView(View):
     def create_filters(self, FILTER_SET, filter_dictionary):
         query = {FILTER_SET[key] : value for key, value in filter_dictionary if FILTER_SET.get(key)}
         return query
+
+class ReviewView(View):
+    @check_token
+    def post(self, request):
+        data      = request.POST
+        file      = request.FILES.get('image')
+
+        if file == None:
+            return JsonResponse({'mesasage':'FILE_UPLOAD_ERROR'}, status=400)
+
+        image_file = FileUploader(s3_client, 'hyunyoung').upload(file, 'gocloud/')
+
+        Review.objects.create(
+            user_id   = request.user,
+            space_id  = data['space_id'],
+            content   = data['content'],
+            image_url = image_file
+        )
+        return JsonResponse({'message':'SUCCESS'}, status=200)
+            
+    def get(self, request):
+        reviews = Review.objects.all()
+        
+        result = [{
+            'id':review.id,
+            'content':review.content,
+            'image':review.image_url,
+            'space':{
+                'space_id':review.space.id,
+                'space_name':review.space.title,
+                'price':float(review.space.price)}
+        } for review in reviews]
+
+        return JsonResponse({'result':result}, status=200)
