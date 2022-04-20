@@ -8,16 +8,16 @@ from spaces.models        import Review, Space
 
 class SpaceListView(View):
     def get(self, request):
-        offset = int(request.GET.get('offset', 0))
-        limit  = int(request.GET.get('limit', 20))
-        order  = request.GET.get('order', None)
+        offset            = int(request.GET.get('offset', 0))
+        limit             = int(request.GET.get('limit', 9))
+        order             = request.GET.get('order', None)
         filter_dictionary = request.GET.items()
-        
 
         FILTER_SET = {
             "capacity": "max_capacity__exact",
             "date"    : "booking__start_time__date",
-            "search"  : "category__id"
+            "search"  : "category__id",
+            "category":"category__title"
         }
 
         STANDARD = {
@@ -38,7 +38,10 @@ class SpaceListView(View):
             'max_capacity': space.max_capacity,
             'address'     : space.address,
             'image'       : [image.url for image in space.images.all()],
-            'category'    : space.category.id
+            'category'    : {
+                'category_id':space.category.id,
+                'category_title':space.category.title
+            }
         } for space in spaces]
 
         return JsonResponse({'result':result}, status=200)
@@ -67,7 +70,9 @@ class ReviewView(View):
         return JsonResponse({'message':'SUCCESS'}, status=200)
             
     def get(self, request):
-        reviews = Review.objects.all()
+        offset = int(request.GET.get('offset', 0))
+        limit  = int(request.GET.get('limit', 6))
+        reviews = Review.objects.all()[offset:offset+limit]
         
         result = [{
             'id':review.id,
