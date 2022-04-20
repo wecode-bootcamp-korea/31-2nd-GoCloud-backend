@@ -1,3 +1,5 @@
+import json
+
 from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Count
@@ -5,6 +7,7 @@ from django.db.models import Count
 from storage              import FileUploader, s3_client
 from utilities.decorators import check_token
 from spaces.models        import Review, Space
+from users.models         import Booking
 
 class SpaceListView(View):
     def get(self, request):
@@ -83,6 +86,8 @@ class ReviewView(View):
                 'space_name':review.space.title,
                 'price':float(review.space.price)}
         } for review in reviews]
+        
+        return JsonResponse({'result':result}, status=200)
 
 class SpaceDetailView(View):
     def get(self, request, space_id):
@@ -103,3 +108,31 @@ class SpaceDetailView(View):
         except Space.DoesNotExist:
             return JsonResponse({'message':'DOES_NOT_EXIST'}, status=400)
         return JsonResponse({'result':result}, status=200)
+
+class BookingView(View):
+    @check_token
+    def post(self, request, space_id):
+        try:
+            data  = json.loads(request.body)
+            user  = request.user
+            space = Space.objects.get(id=space_id)
+
+            start_time  = data['start_time']
+            finish_time = data['finish_time']
+            
+            if Booking.objects.filter(user_id = user.id, space_id = space.id, start_time=start_time, finish_time=finish_time).exists():
+                return JsonResponse({'message':'ALREADY_EXIST'}, status=400)
+
+            Booking.objects.create(
+                user_id     = user,
+                space       = space,
+                start_time  = start_time,
+                finish_time = finish_time
+            )
+
+        except KeyError:
+            return JsonResponse({'message':'KEY_ERROR'}, status=400)
+        except Space.DoesNotExist:
+            return JsonResponse({'message':'SPACE_DOES_NOT_EXIST'}, status=400)
+
+        return JsonResponse({'message':'SUCCESS'}, status=201)
