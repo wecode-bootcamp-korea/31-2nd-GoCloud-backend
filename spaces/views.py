@@ -20,7 +20,7 @@ class SpaceListView(View):
             "capacity": "max_capacity__exact",
             "date"    : "booking__start_time__date",
             "search"  : "category__id",
-            "category":"category__title"
+            "category": "category__title"
         }
 
         STANDARD = {
@@ -42,8 +42,8 @@ class SpaceListView(View):
             'address'     : space.address,
             'image'       : [image.url for image in space.images.all()],
             'category'    : {
-                'category_id':space.category.id,
-                'category_title':space.category.title
+                'category_id'   : space.category.id,
+                'category_title': space.category.title
             }
         } for space in spaces]
 
@@ -73,18 +73,18 @@ class ReviewView(View):
         return JsonResponse({'message':'SUCCESS'}, status=200)
             
     def get(self, request):
-        offset = int(request.GET.get('offset', 0))
-        limit  = int(request.GET.get('limit', 6))
+        offset  = int(request.GET.get('offset', 0))
+        limit   = int(request.GET.get('limit', 6))
         reviews = Review.objects.all()[offset:offset+limit]
         
         result = [{
             'id':review.id,
-            'content':review.content,
-            'image':review.image_url,
-            'space':{
-                'space_id':review.space.id,
-                'space_name':review.space.title,
-                'price':float(review.space.price)}
+            'content': review.content,
+            'image'  : review.image_url,
+            'space'  : {
+                'space_id'  : review.space.id,
+                'space_name': review.space.title,
+                'price'     : float(review.space.price)}
         } for review in reviews]
         
         return JsonResponse({'result':result}, status=200)
@@ -136,3 +136,17 @@ class BookingView(View):
             return JsonResponse({'message':'SPACE_DOES_NOT_EXIST'}, status=400)
 
         return JsonResponse({'message':'SUCCESS'}, status=201)
+
+class BookingListView(View):
+    @check_token
+    def get(self, request):
+        bookings = Booking.objects.select_related('space').filter(user=request.user)
+
+        result = [{
+            'space'      : booking.space.title,
+            'space_name' : booking.space.room_name,
+            'start_time' : booking.start_time,
+            'finish_time': booking.finish_time
+        } for booking in bookings]
+        
+        return JsonResponse({'result':result}, status=200)
