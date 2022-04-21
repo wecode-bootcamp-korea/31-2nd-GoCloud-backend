@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from my_settings import ALGORITHM, DATABASES, SECRET_KEY, APP_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from my_settings import ALGORITHM, DATABASES, SECRET_KEY, APP_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+
 
 import pymysql, os
 
@@ -20,7 +21,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'spaces',
+    'storages',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

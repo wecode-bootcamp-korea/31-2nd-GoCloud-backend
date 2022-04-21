@@ -3,13 +3,16 @@ import json
 from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Count
+from django.http      import JsonResponse, HttpResponse
+from django.conf      import settings
+from django.db        import transaction
 
 from storage              import FileUploader, s3_client
 from utilities.decorators import check_token
-from spaces.models        import Review, Space
-from users.models         import Booking
+from spaces.models        import Review, Space, Category, Image
+from users.models         import Booking, Host, User
 
-class SpaceListView(View):
+class SpaceView(View):
     def get(self, request):
         offset            = int(request.GET.get('offset', 0))
         limit             = int(request.GET.get('limit', 9))
@@ -48,6 +51,41 @@ class SpaceListView(View):
         } for space in spaces]
 
         return JsonResponse({'result':result}, status=200)
+    
+    @check_token
+    def post(self, request):
+        try:
+            user = request.user
+
+            if not user.check_host():
+                return JsonResponse({'message' : 'HOST_EXIST_ERROR'}, status = 401)
+            
+            files = request.FILES.getlist('filename', [])
+
+            if not files:
+                return JsonResponse({'message' : 'FILE_UPLOAD_ERROR'}, status = 400)
+
+            image_urls = [FileUploader(s3_client, settings.BUCKET_NAME).upload(file, 'gocloud/') for file in files]
+
+            with transaction.atomic():
+                space = Space.objects.create(
+                    host         = Host.objects.get(user = user),
+                    title        = request.POST['title'],
+                    sub_title    = request.POST['sub_title'],
+                    detail       = request.POST['detail'],
+                    max_capacity = request.POST['max_capacity'],
+                    address      = request.POST['address'],
+                    price        = request.POST['price'],
+                    category     = Category.objects.get(id = request.POST['category_id'],)
+                )
+            
+                images = [Image(space_id=space.id, url=image_url) for image_url in image_urls]
+                Image.objects.bulk_create(images)
+
+            return HttpResponse(status = 201)
+        
+        except KeyError:
+            return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
 
     def create_filters(self, FILTER_SET, filter_dictionary):
         query = {FILTER_SET[key] : value for key, value in filter_dictionary if FILTER_SET.get(key)}
@@ -62,7 +100,7 @@ class ReviewView(View):
         if file == None:
             return JsonResponse({'mesasage':'FILE_UPLOAD_ERROR'}, status=400)
 
-        image_file = FileUploader(s3_client, 'hyunyoung').upload(file, 'gocloud/')
+        image_file = FileUploader(s3_client, settings.BUCKET_NAME).upload(file, 'gocloud/')
 
         Review.objects.create(
             user_id   = request.user,

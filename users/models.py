@@ -10,6 +10,11 @@ class User(TimeStamp):
     class Meta: 
         db_table = 'users'
 
+    def check_host(self):
+        if not Host.objects.filter(user = self).exists():
+            return False
+        return True
+
 class Host(TimeStamp): 
     user         = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosts')
     phone_number = models.CharField(max_length=45)
