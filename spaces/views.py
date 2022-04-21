@@ -76,7 +76,7 @@ class SpaceView(View):
                     max_capacity = request.POST['max_capacity'],
                     address      = request.POST['address'],
                     price        = request.POST['price'],
-                    category     = Category.objects.get(id = request.POST['category_id'],)
+                    category     = Category.objects.get(title = request.POST['category_title'])
                 )
             
                 images = [Image(space_id=space.id, url=image_url) for image_url in image_urls]
@@ -103,8 +103,8 @@ class ReviewView(View):
         image_file = FileUploader(s3_client, settings.BUCKET_NAME).upload(file, 'gocloud/')
 
         Review.objects.create(
-            user_id   = request.user,
-            space_id  = data['space_id'],
+            user   = request.user,
+            space  = Space.objects.get(id = data['space_id']),
             content   = data['content'],
             image_url = image_file
         )
@@ -163,7 +163,7 @@ class BookingView(View):
                 return JsonResponse({'message':'ALREADY_EXIST'}, status=400)
 
             Booking.objects.create(
-                user_id     = user,
+                user        = user,
                 space       = space,
                 start_time  = start_time,
                 finish_time = finish_time
@@ -188,7 +188,8 @@ class BookingListView(View):
             'space_name' : booking.space.room_name,
             'start_time' : booking.start_time,
             'finish_time': booking.finish_time,
-            'price'      : booking.space.price
+            'price'      : booking.space.price,
+            'space_id'   : booking.space.id
         } for booking in bookings]
         
         return JsonResponse({'result':result}, status=200)
