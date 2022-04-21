@@ -19,7 +19,6 @@ class SpaceListView(View):
         FILTER_SET = {
             "capacity": "max_capacity__exact",
             "date"    : "booking__start_time__date",
-            "search"  : "category__id",
             "category": "category__title"
         }
 
@@ -33,6 +32,7 @@ class SpaceListView(View):
                 .filter(**self.create_filters(FILTER_SET, filter_dictionary)).order_by(STANDARD.get(order, '-best'))[offset:offset+limit]
 
         result = [{
+            'id'          : space.id,
             'title'       : space.title,
             'sub_title'   : space.sub_title,
             'room_name'   : space.room_name,
@@ -92,7 +92,7 @@ class ReviewView(View):
 class SpaceDetailView(View):
     def get(self, request, space_id):
         try:
-            space = Space.objects.select_related('category').get(id=space_id)
+            space = Space.objects.select_related('category').prefetch_related('images').get(id=space_id)
 
             result = {
                 'id'          : space.id,
@@ -102,7 +102,8 @@ class SpaceDetailView(View):
                 'detail'      : space.detail,
                 'max_capacity': space.max_capacity,
                 'address'     : space.address,
-                'price'       : space.price,
+                'price'       : float(space.price),
+                'image'       : [images.url for images in space.images.all()],
                 'category'    : space.category.title
             }
         except Space.DoesNotExist:
@@ -140,13 +141,16 @@ class BookingView(View):
 class BookingListView(View):
     @check_token
     def get(self, request):
-        bookings = Booking.objects.select_related('space').filter(user=request.user)
+        user = request.user
+        bookings = Booking.objects.select_related('space').filter(user_id = user.id)
 
         result = [{
+            'id'         : booking.id,
             'space'      : booking.space.title,
             'space_name' : booking.space.room_name,
             'start_time' : booking.start_time,
-            'finish_time': booking.finish_time
+            'finish_time': booking.finish_time,
+            'price'      : booking.space.price
         } for booking in bookings]
         
         return JsonResponse({'result':result}, status=200)
