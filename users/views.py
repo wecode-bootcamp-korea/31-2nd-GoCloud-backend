@@ -5,6 +5,7 @@ from django.http  import JsonResponse, HttpResponse
 from django.conf  import settings
 
 from users.models         import User, Host
+from spaces.models        import *
 from utilities.decorators import check_token
 
 class KakaoAPI:
