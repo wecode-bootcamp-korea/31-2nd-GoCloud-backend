@@ -3,8 +3,9 @@
 - 공간대여 플랫폼인 스페이스 클라우드 클론 코딩
 - 사이트 UI만 참고하여 코드는 직접 작성
 - API Documentation: 
-- 백엔드 깃헙 주소: https://github.com/wecode-bootcamp-korea/31-2nd-GoCloud-backend
-- 프론트엔드 깃헙 주소: https://github.com/wecode-bootcamp-korea/31-2nd-GoCloud-frontend
+- 백엔드 깃헙 주소     : https://github.com/wecode-bootcamp-korea/31-2nd-GoCloud-backend
+- 프론트엔드 깃헙 주소  : https://github.com/wecode-bootcamp-korea/31-2nd-GoCloud-frontend
+- API Documentation: https://documenter.getpostman.com/view/20078012/UyrAEby8#fbcaac59-edf1-45b5-af5f-45e526cfb6fc
 
 ## 개발 기간 및 인원
 - 개발 기간: 2020-04-11 ~ 2020-04-21 (11일)
