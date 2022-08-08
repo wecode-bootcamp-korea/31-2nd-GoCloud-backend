@@ -47,10 +47,10 @@ class KakaoSigninView(View):
     def get_or_create(self, kakao_id, kakao_email, kakao_nickname):
         if not User.objects.filter(kakao_id=kakao_id).exists():
             user = User.objects.create(
-                kakao_id = kakao_id,
-                nickname = kakao_nickname,
-                email    = kakao_email
-            )
+                            kakao_id = kakao_id,
+                            nickname = kakao_nickname,
+                            email    = kakao_email
+                        )
             
         user = User.objects.get(kakao_id=kakao_id)
         return user

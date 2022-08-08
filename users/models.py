@@ -3,9 +3,9 @@ from django.db import models
 from utilities.timestamp import TimeStamp
 
 class User(TimeStamp): 
-    nickname      = models.CharField(max_length=45)
-    email         = models.CharField(max_length=50, unique=True)
-    kakao_id      = models.BigIntegerField()
+    nickname = models.CharField(max_length=45)
+    email    = models.CharField(max_length=50, unique=True)
+    kakao_id = models.BigIntegerField()
 
     class Meta: 
         db_table = 'users'

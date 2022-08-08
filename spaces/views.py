@@ -7,7 +7,7 @@ from django.http      import JsonResponse, HttpResponse
 from django.conf      import settings
 from django.db        import transaction
 
-from storage              import FileUploader, s3_client
+from utilities.storages   import FileUploader, s3_client
 from utilities.decorators import check_token
 from spaces.models        import Review, Space, Category, Image
 from users.models         import Booking, Host, User
@@ -94,8 +94,8 @@ class SpaceView(View):
 class ReviewView(View):
     @check_token
     def post(self, request):
-        data      = request.POST
-        file      = request.FILES.get('image')
+        data = request.POST
+        file = request.FILES.get('image')
 
         if file == None:
             return JsonResponse({'mesasage':'FILE_UPLOAD_ERROR'}, status=400)
@@ -103,11 +103,11 @@ class ReviewView(View):
         image_file = FileUploader(s3_client, settings.BUCKET_NAME).upload(file, 'gocloud/')
 
         Review.objects.create(
-            user   = request.user,
-            space  = Space.objects.get(id = data['space_id']),
-            content   = data['content'],
-            image_url = image_file
-        )
+                    user      = request.user,
+                    space     = Space.objects.get(id = data['space_id']),
+                    content   = data['content'],
+                    image_url = image_file
+                )
         return JsonResponse({'message':'SUCCESS'}, status=200)
             
     def get(self, request):
@@ -116,7 +116,7 @@ class ReviewView(View):
         reviews = Review.objects.all()[offset:offset+limit]
         
         result = [{
-            'id':review.id,
+            'id'     : review.id,
             'content': review.content,
             'image'  : review.image_url,
             'space'  : {
@@ -163,11 +163,11 @@ class BookingView(View):
                 return JsonResponse({'message':'ALREADY_EXIST'}, status=400)
 
             Booking.objects.create(
-                user        = user,
-                space       = space,
-                start_time  = start_time,
-                finish_time = finish_time
-            )
+                        user        = user,
+                        space       = space,
+                        start_time  = start_time,
+                        finish_time = finish_time
+                    )
 
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
@@ -179,7 +179,7 @@ class BookingView(View):
 class BookingListView(View):
     @check_token
     def get(self, request):
-        user = request.user
+        user     = request.user
         bookings = Booking.objects.select_related('space').filter(user_id = user.id)
 
         result = [{
